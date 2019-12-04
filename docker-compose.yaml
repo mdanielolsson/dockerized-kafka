@@ -1,0 +1,15 @@
+version: "2"
+services:
+  zookeeper:
+    hostname: zookeeper
+    build:
+      context: ./zookeeper/
+  kafka:
+    hostname: kafka
+    build:
+      context: ./kafka/
+    links:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 9093:9093
