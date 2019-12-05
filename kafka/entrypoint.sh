@@ -10,8 +10,11 @@ done
 # Superusers are defined in server.properties
 # Username: producer
 # Allowed to produce on any topic, no "Read"
+# Allowed to Describe consumer groups.
 /opt/kafka/bin/kafka-acls.sh --authorizer-properties zookeeper.connect=zookeeper:2181/kafka_1 \
     --add --allow-principal User:producer --producer --topic "*"
+/opt/kafka/bin/kafka-acls.sh --authorizer-properties zookeeper.connect=zookeeper:2181/kafka_1 \
+    --add --allow-principal User:producer --operation "Describe" --group "*"
 
 # Username: consumer
 # Allowed to consume on any topic and any consumer group, no "Write"
