@@ -15,7 +15,7 @@ done
 
 # Username: consumer
 # Allowed to consume on any topic and any consumer group, no "Write"
-bin/kafka-acls.sh --authorizer-properties zookeeper.connect=zookeeper:2181/kafka_1 \
+/opt/kafka/bin/kafka-acls.sh --authorizer-properties zookeeper.connect=zookeeper:2181/kafka_1 \
     --add --allow-principal User:consumer --consumer --group "*" --topic "*"
 
 # Start kafka
