@@ -8,8 +8,15 @@ services:
     hostname: kafka
     build:
       context: ./kafka/
-    links:
+    depends_on:
       - zookeeper
     ports:
       - 9092:9092
       - 9093:9093
+  init:
+    hostname: init
+    build:
+      context: ./init/
+    depends_on:
+      - zookeeper
+      - kafka
