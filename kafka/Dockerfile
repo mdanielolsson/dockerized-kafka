@@ -1,20 +1,31 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-ENV KAFKA_OPTS=-Djava.security.auth.login.config=/opt/kafka_2.12-2.3.1/config/kafka_server_jaas.conf
+LABEL name=kafka
+LABEL version=2.7.0
 
-RUN apt update && \
-    apt install -y gnupg2 software-properties-common net-tools curl gnupg2 netcat && \
+ARG KAFKA_VERSION=2.7.0
+ARG SCALA_VERSION=2.13
+ARG OPA_KAFKA_PLUGIN_VERSION=1.0.0
+
+ENV KAFKA_OPTS=-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf
+#ENV KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false -Djavax.net.debug=all "
+
+RUN mkdir -p /usr/local/share/kafka/plugins/ && \
+    apt-get update && \
+    apt-get install --yes --no-install-recommends gnupg2 software-properties-common net-tools curl gnupg2 netcat vim openssl && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9 && \
     apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main' && \
-    apt update && \
-    apt install -y zulu-11 && \
-    curl -sf http://apache.mirrors.spacedump.net/kafka/2.3.1/kafka_2.12-2.3.1.tgz -O && \
-    tar zxvf kafka_2.12-2.3.1.tgz -C /opt/ && \
-    ln -sf /opt/kafka_2.12-2.3.1 /opt/kafka
+    apt-get update && \
+    apt-get install --yes --no-install-recommends zulu-11 && \
+    curl -fsSL https://ftpmirror1.infania.net/mirror/apache/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -O && \
+    tar zxvf kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt/ && \
+    ln -sf /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka && \
+    curl -fsSL https://github.com/Bisnode/opa-kafka-plugin/releases/download/v${OPA_KAFKA_PLUGIN_VERSION}/opa-authorizer-${OPA_KAFKA_PLUGIN_VERSION}-all.jar \
+        -o /usr/local/share/kafka/plugins/opa-authorizer-${OPA_KAFKA_PLUGIN_VERSION}-all.jar && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD entrypoint.sh /entrypoint.sh
-ADD server.properties /opt/kafka_2.12-2.3.1/config/server.properties
-ADD kafka_server_jaas.conf /opt/kafka_2.12-2.3.1/config/kafka_server_jaas.conf
-ADD log4j.properties /opt/kafka_2.12-2.3.1/config/log4j.properties
+COPY scripts/* /
+COPY kafka-configs/* /opt/kafka/config/
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+CMD [ "/entrypoint.sh" ]
