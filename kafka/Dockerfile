@@ -25,10 +25,7 @@ RUN mkdir -p /usr/local/share/kafka/plugins/ && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /entrypoint.sh
-COPY server.properties /opt/kafka/config/server.properties
-COPY kafka_server_jaas.conf /opt/kafka/config/kafka_server_jaas.conf
-COPY log4j.properties /opt/kafka/config/log4j.properties
-COPY add_users.sh /add_users.sh
+COPY scripts/* /
+COPY kafka-configs/* /opt/kafka/config/
 
 CMD [ "/entrypoint.sh" ]
