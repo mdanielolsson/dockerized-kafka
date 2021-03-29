@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   zookeeper:
     hostname: zookeeper
@@ -10,13 +10,15 @@ services:
       context: ./kafka/
     depends_on:
       - zookeeper
+      - opa
     ports:
       - 9092:9092
       - 9093:9093
-  init:
-    hostname: init
+    environment:
+      - CLASSPATH=/usr/local/share/kafka/plugins/*
+  opa:
+    hostname: opa
     build:
-      context: ./init/
-    depends_on:
-      - zookeeper
-      - kafka
+      context: ./opa/
+    ports:
+      - 8181:8181
